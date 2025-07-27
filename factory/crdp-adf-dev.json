@@ -1,0 +1,9 @@
+{
+	"name": "crdp-adf-dev",
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "80fab696-1d80-4bdd-9bd5-c5ebecb792fb",
+		"tenantId": "18ea6cf2-8572-415d-9063-f620b0105a11"
+	}
+}
