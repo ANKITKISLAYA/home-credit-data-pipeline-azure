@@ -1,0 +1,17 @@
+{
+	"name": "feature_insights",
+	"properties": {
+		"content": {
+			"query": "SELECT\n    COUNT(*) AS total_applicants,\n    ROUND(AVG(AMT_INCOME_TOTAL), 2) AS avg_income,\n    ROUND(AVG(AMT_CREDIT), 2) AS avg_credit_amount,\n    ROUND(AVG(total_credit_debt), 2) AS avg_total_debt,\n    ROUND(AVG(CAST(total_credit_debt AS FLOAT) / NULLIF(AMT_INCOME_TOTAL, 0)), 4) AS avg_debt_to_income_ratio,\n    ROUND(AVG(CAST(AMT_INCOME_TOTAL AS FLOAT) / NULLIF(AMT_CREDIT, 0)), 4) AS avg_income_to_credit_ratio,\n    ROUND(AVG(credit_utilization_ratio), 4) AS avg_credit_utilization\n\nFROM silver.applicant_profiles_view",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "crdpserverlessdb",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

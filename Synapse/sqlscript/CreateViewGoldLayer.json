@@ -1,0 +1,17 @@
+{
+	"name": "CreateViewGoldLayer",
+	"properties": {
+		"content": {
+			"query": "CREATE SCHEMA gold \n\nCREATE VIEW gold.applicant_risk_profiles\nAS\nSELECT\n    SK_ID_CURR,\n    AMT_INCOME_TOTAL,\n    AMT_CREDIT,\n    total_credit_debt,\n    previous_app_count,\n    avg_prev_annuity,\n    credit_utilization_ratio,\n\n    -- Derived metrics\n    ROUND(CAST(total_credit_debt AS FLOAT) / NULLIF(AMT_INCOME_TOTAL, 0), 4) AS debt_to_income_ratio,\n    ROUND(CAST(AMT_INCOME_TOTAL AS FLOAT) / NULLIF(AMT_CREDIT, 0), 4) AS income_to_credit_ratio\n\nFROM silver.applicant_profiles_view\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "crdpserverlessdb",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

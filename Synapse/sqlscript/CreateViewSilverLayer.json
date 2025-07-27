@@ -1,0 +1,17 @@
+{
+	"name": "CreateViewSilverLayer",
+	"properties": {
+		"content": {
+			"query": "CREATE SCHEMA silver \n\nCREATE VIEW silver.applicant_profiles_view\nAS\nSELECT\n     *\nFROM\n    OPENROWSET(\n        BULK 'https://crdpadlsdev.dfs.core.windows.net/silver/applicant_profiles',\n        FORMAT = 'PARQUET'\n    ) AS result1\n\nSELECT count(*) FROM silver.applicant_profiles_view",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "crdpserverlessdb",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
