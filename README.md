@@ -1,5 +1,3 @@
-# home-credit-data-pipeline-azure
-
 ---
 
 ## Architecture: Medallion (Bronze → Silver → Gold)
