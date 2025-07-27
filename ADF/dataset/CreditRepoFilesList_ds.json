@@ -1,0 +1,19 @@
+{
+	"name": "CreditRepoFilesList_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "File_List_Of_Credit_Repo",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "Dataset-Home-Credit-Default-Risk/refs/heads/main/Input_files.json"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

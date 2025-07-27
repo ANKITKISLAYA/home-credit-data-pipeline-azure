@@ -1,0 +1,31 @@
+{
+	"name": "CopySource",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Dataset_Home_Credit_Default_Risk",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"githubRelativeUrl": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@dataset().githubRelativeUrl",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
