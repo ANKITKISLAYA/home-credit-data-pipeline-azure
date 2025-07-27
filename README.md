@@ -4,12 +4,12 @@
 
 ### Bronze Layer – Raw Ingestion
 - Ingested Kaggle CSVs to **ADLS Gen2** using ADF
-- Stored in `/bronze/home_credit/`
+- Stored in `/bronze/`
 
 ### Silver Layer – Cleaned & Joined Data
 - Cleaned with **Databricks Notebooks**
 - Joined application, bureau, and previous application data
-- Stored in `/silver/home_credit/`
+- Stored in `/silver/applicant_profiles/`
 
 ### Gold Layer – Feature Aggregates
 - Risk profile views (debt-to-income, credit utilization, etc.)
@@ -57,4 +57,8 @@ Saved as: `gold.feature_insights`
 - Databricks Workspace
 - Azure Synapse Analytics
 - GitHub Repository
+
+## Data Source
+
+https://www.kaggle.com/competitions/home-credit-default-risk/data
 
