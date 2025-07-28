@@ -2,7 +2,7 @@
 	"name": "ExportUsingCETAS",
 	"properties": {
 		"content": {
-			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'admin@1234';\n\nCREATE DATABASE SCOPED CREDENTIAL ankitadmin WITH IDENTITY = 'Managed Identity';\n\nCREATE EXTERNAL FILE FORMAT ParquetFormat WITH (\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n\nCREATE EXTERNAL DATA SOURCE GoldLayer WITH (\n    LOCATION = 'https://crdpadlsdev.dfs.core.windows.net/gold',\n    CREDENTIAL = ankitadmin\n);\n\nCREATE EXTERNAL TABLE [dbo].[applicant_risk_profiles_external] WITH (\n        LOCATION = '/applicant_risk_profiles',\n        DATA_SOURCE = GoldLayer,\n        FILE_FORMAT = ParquetFormat\n) AS\nSELECT * FROM [gold].[applicant_risk_profiles];\n\nSELECT * FROM dbo.applicant_risk_profiles_external;\n\n",
+			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'admin@1234';\n\nCREATE DATABASE SCOPED CREDENTIAL ankitadmin WITH IDENTITY = 'Managed Identity';\n\nCREATE EXTERNAL FILE FORMAT ParquetFormat WITH (\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n\nCREATE EXTERNAL DATA SOURCE GoldLayer WITH (\n    LOCATION = 'https://crdpadlsdev.dfs.core.windows.net/gold',\n    CREDENTIAL = ankitadmin\n);\n\nCREATE EXTERNAL TABLE [dbo].[applicant_risk_profiles_external] WITH (\n        LOCATION = '/applicant_risk_profiles',\n        DATA_SOURCE = GoldLayer,\n        FILE_FORMAT = ParquetFormat\n) AS\nSELECT * FROM [gold].[applicant_risk_profiles];\n\nSELECT * FROM dbo.applicant_risk_profiles_external;\n",
 			"metadata": {
 				"language": "sql"
 			},
