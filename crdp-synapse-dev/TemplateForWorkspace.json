@@ -1,0 +1,217 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "crdp-synapse-dev"
+		},
+		"crdp-synapse-dev-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'crdp-synapse-dev-WorkspaceDefaultSqlServer'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:crdp-synapse-dev.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"crdp-synapse-dev-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://crdpsynapsedev.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/crdp-synapse-dev-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('crdp-synapse-dev-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/crdp-synapse-dev-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('crdp-synapse-dev-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CreateViewGoldLayer')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE SCHEMA gold \n\nCREATE VIEW gold.applicant_risk_profiles\nAS\nSELECT\n    SK_ID_CURR,\n    AMT_INCOME_TOTAL,\n    AMT_CREDIT,\n    total_credit_debt,\n    previous_app_count,\n    avg_prev_annuity,\n    credit_utilization_ratio,\n\n    -- Derived metrics\n    ROUND(CAST(total_credit_debt AS FLOAT) / NULLIF(AMT_INCOME_TOTAL, 0), 4) AS debt_to_income_ratio,\n    ROUND(CAST(AMT_INCOME_TOTAL AS FLOAT) / NULLIF(AMT_CREDIT, 0), 4) AS income_to_credit_ratio\n\nFROM silver.applicant_profiles_view\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "crdpserverlessdb",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CreateViewSilverLayer')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE SCHEMA silver \n\nCREATE VIEW silver.applicant_profiles_view\nAS\nSELECT\n     *\nFROM\n    OPENROWSET(\n        BULK 'https://crdpadlsdev.dfs.core.windows.net/silver/applicant_profiles',\n        FORMAT = 'PARQUET'\n    ) AS result1\n\n\nSELECT * FROM silver.applicant_profiles_view;\n\nSELECT DISTINCT (NAME_EDUCATION_TYPE) FROM silver.applicant_profiles_view;\n\nSELECT DISTINCT (NAME_INCOME_TYPE) FROM silver.applicant_profiles_view;\n\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "crdpserverlessdb",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ExportUsingCETAS')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'admin@1234';\n\nCREATE DATABASE SCOPED CREDENTIAL ankitadmin WITH IDENTITY = 'Managed Identity';\n\nCREATE EXTERNAL FILE FORMAT ParquetFormat WITH (\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n\nCREATE EXTERNAL DATA SOURCE GoldLayer WITH (\n    LOCATION = 'https://crdpadlsdev.dfs.core.windows.net/gold',\n    CREDENTIAL = ankitadmin\n);\n\nCREATE EXTERNAL TABLE [dbo].[applicant_risk_profiles_external] WITH (\n        LOCATION = '/applicant_risk_profiles',\n        DATA_SOURCE = GoldLayer,\n        FILE_FORMAT = ParquetFormat\n) AS\nSELECT * FROM [gold].[applicant_risk_profiles];\n\nSELECT * FROM dbo.applicant_risk_profiles_external;\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "crdpserverlessdb",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ExportViewSilverLayerCETAS')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'admin@1234';\n\nCREATE DATABASE SCOPED CREDENTIAL ankitadmin WITH IDENTITY = 'Managed Identity';\n\nCREATE EXTERNAL FILE FORMAT ParquetFormat WITH (\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n\nCREATE EXTERNAL DATA SOURCE SilverLayer WITH (\n    LOCATION = 'https://crdpadlsdev.dfs.core.windows.net/silver',\n    CREDENTIAL = ankitadmin\n);\n\nCREATE EXTERNAL TABLE [dbo].[applicant_profiles_view_external] WITH (\n        LOCATION = '/applicant_risk_profiles_external_table',\n        DATA_SOURCE = SilverLayer,\n        FILE_FORMAT = ParquetFormat\n) AS\nSELECT * FROM [silver].[applicant_profiles_view];\n\nSELECT * FROM dbo.applicant_profiles_view_external;\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "crdpserverlessdb",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://crdpadlsdev.dfs.core.windows.net/silver/applicant_profiles',\n        FORMAT = 'PARQUET'\n    ) AS result1\n\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "crdpserverlessdb",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/feature_insights')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT\n    COUNT(*) AS total_applicants,\n    ROUND(AVG(AMT_INCOME_TOTAL), 2) AS avg_income,\n    ROUND(AVG(AMT_CREDIT), 2) AS avg_credit_amount,\n    ROUND(AVG(total_credit_debt), 2) AS avg_total_debt,\n    ROUND(AVG(CAST(total_credit_debt AS FLOAT) / NULLIF(AMT_INCOME_TOTAL, 0)), 4) AS avg_debt_to_income_ratio,\n    ROUND(AVG(CAST(AMT_INCOME_TOTAL AS FLOAT) / NULLIF(AMT_CREDIT, 0)), 4) AS avg_income_to_credit_ratio,\n    ROUND(AVG(credit_utilization_ratio), 4) AS avg_credit_utilization\n\nFROM silver.applicant_profiles_view",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "crdpserverlessdb",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		}
+	]
+}
