@@ -45,9 +45,10 @@ Saved as: `gold.applicant_risk_profiles`
 
 ### 2. **Feature Insights View**
 Aggregated view for Power BI dashboards:
-- Avg loan/income by gender
-- Default rate by education level
-- Credit utilization histograms
+- Debt-to-Income Ratio 
+- Education vs Default Rate
+- Income Type vs Default Rate
+- Gender Distribution of Defaulters
 
 Saved as: `gold.feature_insights`
 
