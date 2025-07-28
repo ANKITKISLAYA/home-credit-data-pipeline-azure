@@ -50,8 +50,6 @@ Aggregated view for Power BI dashboards:
 - Income Type vs Default Rate
 - Gender Distribution of Defaulters
 
-Saved as: `gold.feature_insights`
-
 ---
 
 ## How to Reproduce
