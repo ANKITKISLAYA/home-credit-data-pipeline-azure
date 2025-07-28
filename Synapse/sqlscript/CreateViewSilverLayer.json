@@ -2,7 +2,7 @@
 	"name": "CreateViewSilverLayer",
 	"properties": {
 		"content": {
-			"query": "CREATE SCHEMA silver \n\nCREATE VIEW silver.applicant_profiles_view\nAS\nSELECT\n     *\nFROM\n    OPENROWSET(\n        BULK 'https://crdpadlsdev.dfs.core.windows.net/silver/applicant_profiles',\n        FORMAT = 'PARQUET'\n    ) AS result1\n\nSELECT count(*) FROM silver.applicant_profiles_view",
+			"query": "CREATE SCHEMA silver \n\nCREATE VIEW silver.applicant_profiles_view\nAS\nSELECT\n     *\nFROM\n    OPENROWSET(\n        BULK 'https://crdpadlsdev.dfs.core.windows.net/silver/applicant_profiles',\n        FORMAT = 'PARQUET'\n    ) AS result1\n\n\nSELECT * FROM silver.applicant_profiles_view;\n\nSELECT DISTINCT (NAME_EDUCATION_TYPE) FROM silver.applicant_profiles_view;\n\nSELECT DISTINCT (NAME_INCOME_TYPE) FROM silver.applicant_profiles_view;\n\n\n",
 			"metadata": {
 				"language": "sql"
 			},
