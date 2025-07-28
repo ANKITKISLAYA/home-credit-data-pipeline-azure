@@ -2,6 +2,9 @@
 
 ## Architecture: Medallion (Bronze → Silver → Gold)
 
+<img width="1106" height="617" alt="Home Credit Pipeline Architecture" src="https://github.com/user-attachments/assets/f1dcba88-15f4-4517-9114-9ccf5295110a" />
+
+
 ### Bronze Layer – Raw Ingestion
 - Ingested Kaggle CSVs to **ADLS Gen2** using ADF
 - Stored in `/bronze/`
