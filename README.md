@@ -4,6 +4,8 @@
 
 <img width="1106" height="617" alt="Home Credit Pipeline Architecture" src="https://github.com/user-attachments/assets/f1dcba88-15f4-4517-9114-9ccf5295110a" />
 
+<img width="1201" height="771" alt="Home Credit Pipeline Data Model" src="https://github.com/user-attachments/assets/6be265f0-2cae-4c82-816f-827600700923" />
+
 
 ### Bronze Layer – Raw Ingestion
 - Ingested Kaggle CSVs to **ADLS Gen2** using ADF
