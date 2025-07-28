@@ -37,7 +37,7 @@
 
 ### 1. **Applicant Risk Profile View**
 One row per applicant with:
-- Debt-to-Income Ratio
+- DTI (Debt-to-Income Ratio) Based Applicant Risk Segmentation
 - Total Loan Amount
 - Credit Utilization
 
