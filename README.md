@@ -65,4 +65,9 @@ https://www.kaggle.com/competitions/home-credit-default-risk/data
 
 <img width="1201" height="771" alt="Home Credit Pipeline Data Model" src="https://github.com/user-attachments/assets/6be265f0-2cae-4c82-816f-827600700923" />
 
+## Project Walkthrough
+
+Watch the full video walkthrough on YouTube:  
+[Home Credit Risk Pipeline Demo](https://www.youtube.com/watch?v=pkTNIWq9vEk)
+
 
